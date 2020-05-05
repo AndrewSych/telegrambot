@@ -23,7 +23,7 @@
  */
 package telegram.bot.service;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import telegram.bot.model.Person;
 
@@ -32,6 +32,6 @@ import telegram.bot.model.Person;
  * @author MrazotaOne
  */
 @Service
-public interface PersonService extends CrudRepository<Person, Long> {
-    
+public interface PersonService extends JpaRepository<Person, Long> {
+
 }

@@ -36,57 +36,61 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import telegram.bot.model.Person;
 
 /**
- * 
+ *
  * This example bot is an echo bot that just repeats the messages sent to him
  *
  */
 @Component
 public class Bot extends TelegramLongPollingBot {
-	
-	private static final Logger logger = LoggerFactory.getLogger(Bot.class);
-	
-        @Autowired
-        private PersonService service;
-        
-	@Value("${bot.token}")
-	private String token;
-	
-	@Value("${bot.username}")
-	private String username;
-	
-	@Override
-	public String getBotToken() {
-		return token;
-	}
-	
-	@Override
-	public String getBotUsername() {
-		return username;
-	}
-	
-	@Override
-	public void onUpdateReceived(Update update) {
-		if (update.hasMessage()) {
-			Message message = update.getMessage();
-			SendMessage response = new SendMessage();
-			Long chatId = message.getChatId();
-			response.setChatId(chatId);
-			String text = message.getText();
-			response.setText(text);
-			try {
-				execute(response);
-				logger.info("Sent message \"{}\" to {}", text, chatId);
-			} catch (TelegramApiException e) {
-				logger.error("Failed to send message \"{}\" to {} due to error: {}", text, chatId, e.getMessage());
-			}
-		}
-	}
 
-	@PostConstruct
-	public void start() {
-		logger.info("username: {}, token: {}", username, token);
-	}
+    private static final Logger logger = LoggerFactory.getLogger(Bot.class);
+
+    @Autowired
+    private PersonService service;
+
+    @Value("${bot.token}")
+    private String token;
+
+    @Value("${bot.username}")
+    private String username;
+
+    @Override
+    public String getBotToken() {
+        return token;
+    }
+
+    @Override
+    public String getBotUsername() {
+        return username;
+    }
+
+    @Override
+    public void onUpdateReceived(Update update) {
+        if (update.hasMessage()) {
+            Person person = new Person();
+            person.setName(update.getMessage().getFrom().getUserName());
+            service.save(person);
+            Message message = update.getMessage();
+            SendMessage response = new SendMessage();
+            Long chatId = message.getChatId();
+            response.setChatId(chatId);
+            String text = message.getText();
+            response.setText(text);
+            try {
+                execute(response);
+                logger.info("Sent message \"{}\" to {}", text, chatId);
+            } catch (TelegramApiException e) {
+                logger.error("Failed to send message \"{}\" to {} due to error: {}", text, chatId, e.getMessage());
+            }
+        }
+    }
+
+    @PostConstruct
+    public void start() {
+        logger.info("username: {}, token: {}", username, token);
+    }
 
 }
